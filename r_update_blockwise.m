@@ -1,4 +1,4 @@
-function [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma)
+function [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma,Sr)
 % syntax: [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma)
 %
 % INPUT
@@ -7,6 +7,7 @@ function [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma)
 % mu_r:     Mean radius of PSF
 % delta_r:  Variance of PSF
 % sigma:    The standard deviation of the noise 
+% Sr:       Number of model error samples
 
 % Cut image into 100x100 blocks which we can manage
 [m,n] = size(X);
@@ -31,7 +32,6 @@ end
 
 % Parameters
 alpha = 0.5; % best value in report, can be tuned
-Sr = 500;
 
 mu_r_new = zeros(count,1);
 delta_r_new = zeros(count,1);
