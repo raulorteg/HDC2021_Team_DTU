@@ -44,11 +44,14 @@ for k = 1:count
     
     eta = zeros(m*n,Sr);
     r = zeros(Sr,1);
-
+    
+    % Precompute forward operation once for efficiency
+    A_mu_r_x = A_fun(mu_r,XX);
+    
     % Sample radius
     for i = 1:Sr
         r(i) = max(normrnd(mu_r,delta_r),1); % r needs to be positive
-        eta(:,i) = A_fun(r(i),XX) - A_fun(mu_r,XX);
+        eta(:,i) = A_fun(r(i),XX) - A_mu_r_x;
     end
 
     % Compute (23), (24), and (25)
