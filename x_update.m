@@ -1,4 +1,4 @@
-function [x_new,f_vec] = x_update(x, mu_r, delta_r, b, sigma_e, Sr, lambda,usechol)
+function [x_new,f_vec] = x_update(x, mu_r, delta_r, b, sigma_e, Sr, lambda, usechol)
 %This function updates the current image x by solving a TV-regularized
 %least squares problem taking into account the model error
 
