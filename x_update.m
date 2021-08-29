@@ -26,9 +26,9 @@ A_mu_r_x = convb(x, mu_r);
     
 for i = 1:Sr
     %Sample radius
-    ri = normrnd(mu_r, delta_r^2);
+    ri = normrnd(mu_r, delta_r);
     while ri <= 0
-        ri = normrnd(mu_r, delta_r^2);
+        ri = normrnd(mu_r, delta_r);
     end
     
     %Compute model error sample
