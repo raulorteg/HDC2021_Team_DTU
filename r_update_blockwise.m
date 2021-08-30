@@ -11,7 +11,7 @@ function [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma,Sr)
 
 % Cut image into 100x100 blocks which we can manage
 [m,n] = size(X);
-sz = 50;
+sz = 3*ceil(mu_r);   % Makes it dependent on the PSF radius estimate instead of a flat number
 mb = floor(m/sz);
 nb = floor(n/sz);
 x_blocks = zeros(sz,sz,mb*nb);
