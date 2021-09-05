@@ -1,4 +1,4 @@
-function [X, mu_r] = deblurring_TV(B,mu_r,delta_r,lambda,sigma,K,Sr,alpha,usechol)
+function [X, mu_r] = deblurring_TV(B,mu_r,delta_r,lambda,sigma,K,Sr,alpha,usechol,plots)
 % syntax: function [x, mu_r] = deblurring_TV_r_est(B,mu_r,delta_r,sigma,K,Sr,alpha)
 %
 % Inputs:
@@ -28,7 +28,7 @@ elseif nargin < 7
     alpha = 0.5;
 end
 
-X = B;      % Initial guess is the blurred image
+X = B; % Initial guess 
 
 disp(['it: ', num2str(0)])
 disp(['  mu_r: ', num2str(mu_r)])
@@ -37,11 +37,42 @@ disp(['  delta_r: ', num2str(delta_r)])
 % Main loop
 for k = 1:K
     % Update estimation of mean PSF radius mu_r
-    [mu_r, delta_r] = r_update_blockwise_old(X,B,mu_r,delta_r,sigma,Sr);
+    [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma,Sr,alpha);
     
     % Update estimation of deblurred image x
     X = x_update(X,mu_r,delta_r,B,sigma,Sr,lambda,usechol);
 
+    if plots == 1
+        figure;
+        subplot(1,3,1)
+        imagesc(X); colormap gray; axis off; 
+        h = colorbar; 
+        h.Limits = [0 1];
+        title('Before filters','FontSize',14,'interpret','latex')
+    end
+    
+    % Run through filter to remove blurring from regularization
+    %X = adpmedian(X);
+    X = medfilt2(X);
+    
+    if plots == 1
+        subplot(1,3,2)
+        imagesc(X); colormap gray; axis off; 
+        h = colorbar; 
+        h.Limits = [0 1];
+        title('After first filter','FontSize',14,'interpret','latex')
+    end
+    % Do edge enhancement     
+    X = imbilatfilt(X,2*sigma,4);
+
+    if plots == 1
+        subplot(1,3,3)
+        imagesc(X); colormap gray; axis off; 
+        h = colorbar; 
+        h.Limits = [0 1];
+        title('After second filter','FontSize',14,'interpret','latex')
+    end
+    
     disp(['it: ', num2str(k)])
     disp(['  mu_r: ', num2str(mu_r)])
     disp(['  delta_r: ', num2str(delta_r)])
