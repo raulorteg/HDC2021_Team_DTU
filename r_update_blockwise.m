@@ -1,4 +1,4 @@
-function [mu_r, delta_r] = r_update_blockwise_old(X,B,mu_r,delta_r,sigma,Sr,alpha)
+function [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma,Sr,alpha)
 % syntax: [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma)
 %
 % INPUT
@@ -8,6 +8,13 @@ function [mu_r, delta_r] = r_update_blockwise_old(X,B,mu_r,delta_r,sigma,Sr,alph
 % delta_r:  Variance of PSF
 % sigma:    The standard deviation of the noise 
 % Sr:       Number of model error samples
+
+if nargin < 6
+    Sr = 100;
+    alpha = 0.5;
+elseif nargin < 5
+    alpha = 0.5;
+end
 
 % Cut image into 100x100 blocks which we can manage
 [m,n] = size(X);
