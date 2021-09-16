@@ -7,5 +7,6 @@ g = g(:);
 PSF = fspecial('disk', r);
 p = (size(PSF, 1) - 1) / 2;
 PSF = PSF(p+1,:);
+PSF = PSF/sum(PSF);
 g2 = padarray(g, [p,0], 'symmetric');
 c = conv(g2, PSF, 'valid');
