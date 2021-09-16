@@ -55,7 +55,7 @@ sol_tmp = (eye(N)*sigma.^2 + U*Ut)\(b_tilde);
 mu_r = mu_r + c_tilde'*sol_tmp;
 
 % solve (sigma^2 ´u'u)sol_temp = c_tilde
-sol_tmp = (sigma.^2 + U*Ut)\c_tilde;
+sol_tmp = (eye(N)*sigma.^2 + U*Ut)\c_tilde;
 %sol_tmp = egrss_trsv(Ut,Wt,c,c_tilde);
 %sol_tmp = egrss_trsv(Ut,Wt,c,sol_tmp,'T');
 
