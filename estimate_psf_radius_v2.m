@@ -73,3 +73,26 @@ end
 
 % PSF radius estimate is final iteration for each step
 psf_r_est = mu_r_hist(:,end);
+
+%%
+load all_r_est
+load all_r_est_v2
+
+r1 = pixel_r_est;
+r2 = psf_r_est;
+
+plot([r1,r2])
+
+steps = (0:19)';
+
+r1n = interp1(steps(1:14), r1(1:14), steps, 'linear', 'extrap');
+r2n = interp1(steps(1:9), r2(1:9), steps, 'linear', 'extrap');
+
+plot(steps,[r1n,r2n],'linewidth',2)
+hold on
+scatter(steps,r1,30,'b','filled')
+scatter(steps,r2,30,'r','filled')
+legend('Extrapolated v1','Extrapolated v2','Estimates v1','Estimates v2','location','best')
+title('PSF radius estimate at each step','fontsize',14)
+xlabel('blurring step')
+ylabel('PSF radius')
