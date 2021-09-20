@@ -64,7 +64,7 @@ L = z'*z1 + 8*lambda/rho/h^2;
 Dfd_N = spdiags([-ones(n-1,1),ones(n-1,1);0 1]/h,[0,1],n,n);
 Dfd_M = spdiags([-ones(m-1,1),ones(m-1,1);0 1]/h,[0,1],m,m);
 
-D = vertcat(kron(Dfd_M,speye(n)),kron(speye(m),Dfd_N));
+D = vertcat(kron(speye(n), Dfd_M), kron(Dfd_N, speye(m)));
 % Compute "smooth" TV and its gradient
 phi = @(y) sqrt(sum(reshape(y,[],2).^2,2)+rho^2);
 Dx = D*x;
