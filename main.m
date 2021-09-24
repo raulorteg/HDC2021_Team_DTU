@@ -1,106 +1,99 @@
-clear
-clc
-close all
+%function main(input_folder,output_folder,step)
+step = 0;
+input_folder = ['competition_data_single_sample/step' num2str(step)];    % function input
+output_folder = ['competition_data_single_output/step' num2str(step)];    % function input
 
-% Set parameters.
-true_radius = 4;
-true_noise_std = 0.015;
-mu_r = 3;
-delta_r = 0.3;
-Sr = 100;
-sigma_e = 0.015;
-lambda_tv = 0.01;
+% Add package
+addpath('egrssMatlab')
 
-use_chol = 1;
+% Options
+save_deblur = 0; %Save output deblurred image?
+save_radius = 0; %Save output radius?
 
-if use_chol == 0
-    lambda_tv = lambda_tv*true_noise_std^2;
-end
+% Parameters
+lambda = 0.01;
+sigma_e = 0.034; % Estimate from step 0.
+threshold = 0.7; % For the cleaning of PSF 0
 
-K = 10;
+% Load PSFs
+PSF_0 = im2double(imread(['PSF/focusStep_' num2str(0) '_PSF.tif']));
+PSF_b = im2double(imread(['PSF/focusStep_' num2str(step) '_PSF.tif']));
 
-% Read in test image.
-im = im2double(imread('data/test.jpg'));
-im = imresize(im, 1); % DOWNSCALE IMAGE BEFORE USE FOR FASTER COMPUTATION IN TESTS
+% Try clean up PSF 0 with simple thresholding
+PSF_clean = PSF_0;
+PSF_clean(PSF_0<threshold) = 0;
+PSF_clean(PSF_0>=threshold) = 1;
 
-% Blur and add noise.
-im_blurred =  convb(im, true_radius);
-im_blurred_noise = im_blurred + randn(size(im_blurred))*true_noise_std;
-x = rescale(im_blurred_noise); % scale between 0 and 1.
-b = x;
-x = zeros(size(x));
+% Get list of all .tif files in the directory
+imagefiles = dir([input_folder '/*.tif']);      
+nfiles = length(imagefiles);    % Number of files found
 
-disp(['it: ', num2str(0)])
-disp(['  mu_r: ', num2str(mu_r)])
-disp(['  delta_r: ', num2str(delta_r)])
-
-obj_hist = zeros(1,K);
-mu_r_hist = zeros(1,K+1); mu_r_hist(1) = mu_r;
-delta_r_hist = zeros(1,K+1); delta_r_hist(1) = delta_r;
-for k = 1:K
+% Loop over all images in folder and deblur
+for i = 1:nfiles
     
-    % Update x
-    [x,f_vec] = x_update(x, mu_r, delta_r, b, sigma_e, Sr, lambda_tv, use_chol);
+    %Load current image
+    currentfilename = imagefiles(i).name;
+    b = im2double(imread([imagefiles(i).folder '\' currentfilename]));
     
-    x = medfilt2(x);
-    x = imbilatfilt(x,2*sigma_e,4);
+    % Estimate noise standard deviation
+    %sigma_e = std2(b(1:100,1:100)) % estimate noise std from small corner patch
     
-    % Update r
-    [mu_r, delta_r] = r_update(x, b, mu_r, delta_r, sigma_e, Sr);
+    figure(1);
+    imagesc(b); 
+    title('Blurred with noise'); 
+    h = colorbar; 
+    h.Limits = [0 1];
+    colormap('gray');
+    drawnow
     
-    disp(['it: ', num2str(k)])
-    disp(['  mu_r: ', num2str(mu_r)])
-    disp(['  delta_r: ', num2str(delta_r)])
     
-    mu_r_hist(k+1) = mu_r;
-    delta_r_hist(k+1) = delta_r;
+    % Estimate radius
+    r = 37;
     
-    if K == 10
-        figure(1)
-        subplot(2,5,k)
-        imagesc(x)
-        colorbar
-        colormap('gray')
+       
+    % Deblur image
+    [x,fval] = FISTA_TVsmooth(r,gpuArray(b),lambda,gpuArray(b));    
+    x = gather(x);
     
-        figure(2)
-        subplot(2,5,k)
-        semilogy(f_vec)
-        xlabel('Iteration Number')
-        ylabel('Objective Value')
+    figure(2);
+    imagesc(x); 
+    title('Deblurred image'); 
+    h = colorbar; 
+    h.Limits = [0 1];
+    colormap('gray');
+    drawnow
+    
+    x_filtered1 = medfilt2(x);                % median filter to remove noise from regularization
+    x_filtered2 = imbilatfilt(x_filtered1,2*sigma_e,4); % edge enhancement
+    
+    figure(3);
+    imagesc(x_filtered1); 
+    title('First filtering'); 
+    h = colorbar; 
+    h.Limits = [0 1];
+    colormap('gray');
+    drawnow
+    
+    figure(4);
+    imagesc(x_filtered2); 
+    title('Second filtering'); 
+    h = colorbar; 
+    h.Limits = [0 1];
+    colormap('gray');
+    drawnow
+    
+    figure(5);
+    plot(fval);
+    title("Objective function of deblur using FISTA")
+    drawnow
+    
+    % Save to file
+    if save_deblur == 1
+        % saves image to output folder
+        output_file = [output_folder '/' currentfilename(1:end-4) '.png'];
+        imwrite(x,output_file)
+    end
+    if save_radius == 1
+        save([output_folder '/' currentfilename(1:end-4) '.mat'],'r')
     end
 end
-
-% Show figures.
-figure(3); 
-imagesc(im); title('Original'); 
-h = colorbar; 
-h.Limits = [0 1];
-colormap('gray');
-
-figure(4); 
-imagesc(im_blurred_noise); 
-title('Blurred with noise'); 
-h = colorbar; 
-h.Limits = [0 1];
-colormap('gray');
-
-figure(5);
-imagesc(x); 
-title(['\lambda = ' num2str(lambda_tv)]); 
-h = colorbar; 
-h.Limits = [0 1];
-colormap('gray');
-
-r_bounds = zeros(2,K+1);
-for k = 1:(K+1)
-    r_bounds(:,k) = norminv([0.025 0.975],mu_r_hist(k),delta_r_hist(k));
-end
-
-figure(6);
-plot(0:K,mu_r_hist,'b');
-hold on
-plot(0:K,r_bounds,'b--');
-plot([0,K],[true_radius,true_radius],':k');
-ylim([min(r_bounds,[],'all')*0.95,max(r_bounds,[],'all')*1.05]);
-title('95% confidence interval of radius')
-xlabel('iteration');
