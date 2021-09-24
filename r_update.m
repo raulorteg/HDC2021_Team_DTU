@@ -1,4 +1,4 @@
-function [mu_r, delta_r] = r_update(X,B,mu_r,delta_r,sigma,Sr,alpha)
+function [mu_r, delta_r] = r_update(X,B,mu_r,delta_r,sigma,Sr,alpha,use_egrss)
 % syntax: [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma)
 %
 % INPUT
@@ -6,7 +6,7 @@ function [mu_r, delta_r] = r_update(X,B,mu_r,delta_r,sigma,Sr,alpha)
 % B:        Blurred and noisy image
 % mu_r:     Mean radius of PSF
 % delta_r:  Variance of PSF
-% sigma:    The standard deviation of the noise 
+% sigma:    The standard deviation of the noise
 % Sr:       Number of model error samples
 % alpha:    Relaxation parameter for varience estimation
 
@@ -46,17 +46,38 @@ c_tilde = (eta - mu_eta)*(r - mean_r)/(Sr-1);
 U = (eta - mu_eta)/sqrt(Sr-1);
 Ut = U';
 
-[Wt,c] = egrss_potrf(Ut,Ut,sigma^2);
-b_tilde = b - A_fun(mu_r,X) - mu_eta;
-
-sol_tmp = egrss_trsv(Ut,Wt,c,b_tilde);
-sol_tmp = egrss_trsv(Ut,Wt,c,sol_tmp,'T');
-mu_r = mu_r + c_tilde'*sol_tmp;
-
-sol_tmp = egrss_trsv(Ut,Wt,c,c_tilde);
-sol_tmp = egrss_trsv(Ut,Wt,c,sol_tmp,'T');
-
-delta_r = sqrt(delta_r^2 - alpha*c_tilde'*sol_tmp);
+if use_egrss == 1
+    [Wt,c] = egrss_potrf(Ut,Ut,sigma^2);
+    b_tilde = b - A_fun(mu_r,X) - mu_eta;
+    
+    sol_tmp = egrss_trsv(Ut,Wt,c,b_tilde);
+    sol_tmp = egrss_trsv(Ut,Wt,c,sol_tmp,'T');
+    mu_r = mu_r + c_tilde'*sol_tmp;
+    
+    sol_tmp = egrss_trsv(Ut,Wt,c,c_tilde);
+    sol_tmp = egrss_trsv(Ut,Wt,c,sol_tmp,'T');
+    
+    delta_r = sqrt(delta_r^2 - alpha*c_tilde'*sol_tmp);
+else
+    %[Wt,c] = egrss_potrf(Ut,Ut,sigma^2);
+    b_tilde = b - A_fun(mu_r,x) - mu_eta;
+    
+    %w = (I*sigma^2+Ut*U)\(b-A*r_est*x-model_error)
+    sol_tmp = (eye(N)*sigma.^2 + U*Ut)\(b_tilde);
+    % (sigma^2 + U'U)sol_tmp = b_tilde
+    %sol_tmp = egrss_trsv(Ut,Wt,c,b_tilde);
+    %sol_tmp = egrss_trsv(Ut,Wt,c,sol_tmp,'T');
+    
+    
+    mu_r = mu_r + c_tilde'*sol_tmp;
+    
+    % solve (sigma^2 ´u'u)sol_temp = c_tilde
+    sol_tmp = (eye(N)*sigma.^2 + U*Ut)\c_tilde;
+    %sol_tmp = egrss_trsv(Ut,Wt,c,c_tilde);
+    %sol_tmp = egrss_trsv(Ut,Wt,c,sol_tmp,'T');
+    
+    delta_r = sqrt(delta_r^2 - alpha*c_tilde'*sol_tmp);
+end
 end
 
 function Ax = A_fun(r,X)
