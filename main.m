@@ -94,6 +94,6 @@ for i = 1:nfiles
         imwrite(x,output_file)
     end
     if save_radius == 1
-        save([output_folder '/' currentfilename(1:end-4) '.mat'],'r')
+        save([output_folder '/' currentfilename(1:end-4) '.mat'])
     end
 end
