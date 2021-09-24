@@ -1,4 +1,4 @@
-function [mu_r, delta_r] = r_update(X,B,mu_r,delta_r,sigma,Sr)
+function [mu_r, delta_r] = r_update(X,B,mu_r,delta_r,sigma,Sr,alpha)
 % syntax: [mu_r, delta_r] = r_update_blockwise(X,B,mu_r,delta_r,sigma)
 %
 % INPUT
@@ -8,6 +8,7 @@ function [mu_r, delta_r] = r_update(X,B,mu_r,delta_r,sigma,Sr)
 % delta_r:  Variance of PSF
 % sigma:    The standard deviation of the noise 
 % Sr:       Number of model error samples
+% alpha:    Relaxation parameter for varience estimation
 
 % x = X(:);
 % b = B(:);
@@ -17,9 +18,6 @@ b = B(:);
 
 [m,n] = size(X);
 N = m*n;
-
-% Parameters
-alpha = 0.1; % best value in report, can be tuned
 
 % Sample model error
 A_mu_r_x = A_fun(mu_r,X);
