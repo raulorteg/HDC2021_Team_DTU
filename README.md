@@ -16,15 +16,15 @@ which are several rows drawn from the degraded image. After the radius is estima
 variational methods to deblur the image. Here, we simply utilize the L2-TV method followed by image enhancement technique.
 
 ## Usage
-Run in terminal ´´´ main(inputfolder, outputfolder, step)´´´
+Run in terminal ```main(inputfolder, outputfolder, step)```
 
 where:
-* ´´´inputfolder´´´: string path to the folder with the blurred images (e.g 'blurred/step8_examples')
-* ´´´outputfolder´´´: string path to the folder where the deblurred images are to be saved (e.g 'deblurred/step8_examples')
-* ´´´step´´´: int variable of the step level of the competition
+* ```inputfolder```: string path to the folder with the blurred images (e.g 'blurred/step8_examples')
+* ```outputfolder```: string path to the folder where the deblurred images are to be saved (e.g 'deblurred/step8_examples')
+* ```step```: int variable of the step level of the competition
 
-´´´main(...)´´´ lists all *.tif files in the <inputfolder> directory and calls
-´´´ deblur(...) ´´´ on each of this *.tif files, this function then does the deblurring
+```main(...)``` lists all *.tif files in the <inputfolder> directory and calls
+```deblur(...)``` on each of this *.tif files, this function then does the deblurring
 and saves the resulting deblurred image with the same filename on the <outputfolder>
 
 ## References
