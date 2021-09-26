@@ -3,16 +3,16 @@ clc
 close all
 
 % Set parameters.
-mu_r = 40;
-delta_r = 2;
+mu_r = 30;
+delta_r = 10;
 Sr = 100;
 lambda_tv = 0.001;
 y = 800;
-K = 100;
+K = 40;
 
 % Read in test image.
-im = im2double(imread('data/step5.png'));
-% im = rescale(im);
+im = im2double(imread('data/step5.tif'));
+im = rescale(im);
 
 noise = im(100:200, 100:200);
 sigma_e = std(noise(:));
@@ -38,7 +38,7 @@ for k = 1:K
     % Update x
     x = x_update(x, mu_r, delta_r, b, sigma_e, Sr, lambda_tv, use_chol);
     
-    x = medfilt1(x);
+    x = medfilt1(x, 5, 'truncate');
 %     x(x>0.9) = 1;
     
     % Update r
@@ -51,10 +51,14 @@ for k = 1:K
     end
 end
 
-
+%%
+tic;
 x0 = zeros(size(im));
 lambda_final = 0.01;
-final = FISTA_TVsmooth(mu_r, im, lambda_final, x0);
+final = FISTA_TVsmooth(36, im, lambda_final, x0);
+toc;
+
+%%
 
 % Show figures.
 figure(1); 
@@ -64,13 +68,13 @@ h = colorbar;
 h.Limits = [0 1];
 colormap('gray');
 
-figure(2);
-plot(x, 'b');
-hold on
-plot(im(y,:), 'r')
-legend('Estimated', 'True')
-title(['\lambda = ' num2str(lambda_tv)]); 
-colormap('gray');
+% figure(2);
+% plot(x, 'b');
+% hold on
+% plot(im(y,:), 'r')
+% legend('Estimated', 'True')
+% title(['\lambda = ' num2str(lambda_tv)]); 
+% colormap('gray');
 
 figure(3);
 imagesc(final); 
