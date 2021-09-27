@@ -63,6 +63,6 @@ delta_r = sqrt(delta_r^2 - alpha*c_tilde'*sol_tmp);
 end
 
 function Ax = A_fun(r,x)
-Ax = convb_1d(x,r);
+Ax = convb(x,r);
 Ax = Ax(:);
 end
