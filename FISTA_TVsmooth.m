@@ -67,9 +67,12 @@ if nargout>1
     f_vec = 1/2*norm(reshape(convb(reshape(x,m,n),r),N,1)-b,2)^2+lambda*smooth_tv;
 end
 
+
+h = waitbar(0,'Deblurring image');
+
 while ~converged && k<maxiters
     k = k+1;
-    
+    waitbar(k / maxiters)
     %Compute TV-gradient
     Dy = D*y;
     grad_tv = D'*(Dy.*repmat(1./phi(Dy),2,1));    
@@ -106,7 +109,7 @@ while ~converged && k<maxiters
         f_vec = [f_vec f_val];
     end
 end
-
+close(h)
 %Reshape to get image output
 x = reshape(x,m,n);
 

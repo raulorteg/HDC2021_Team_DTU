@@ -52,7 +52,8 @@ mu_eta = mean(eta_samples, 2);
 %x_new = tv_weighted_deblurring_chol_generator(b_tilde,Yt,Zt,c,mu_r,lambda);
 %x_new = tv_weighted_deblurring_chol(b_tilde, L, mu_r, lambda);
 
-if usechol == 1
+if usechol == 1 && Sr ~= 0
+
     %Generator representation of inverse cholesky factorization
     U = (eta_samples - mu_eta)/sqrt(Sr-1);
     Ut = U';
