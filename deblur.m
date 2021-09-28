@@ -4,10 +4,10 @@ function deblur(inputFolder, outputFolder, filename, step)
     parameters = readtable('lookup_table.csv');
     mu_r = parameters(step+1,:).radius; %mu_r = 40;
     lambda_tv = parameters(step+1,:).lambda; % lambda_tv = 0.01;
-    delta_r = 10;
+    delta_r = 2; % 10
     Sr = 100;
     y = 800;
-    K = 40;
+    K = 100;
     
     %%% Prepare the algorithm: Rescale the image and initialize x, b
     im = im2double(imread(join([inputFolder, '/', filename])));
@@ -17,7 +17,9 @@ function deblur(inputFolder, outputFolder, filename, step)
         return
     end
     
-    sigma_e = 1.6073e+03;
+    %sigma_e = 1.6073e+03;
+    noise = im(100:200, 100:200);
+    sigma_e = std(noise(:));
     
     %%% boolean flag to chose if use cholesky, and verbosity
     use_chol = 1;
