@@ -1,6 +1,6 @@
 %function main(input_folder,output_folder,step)
 clear; close all force; clc;
-step = 5;
+step = 10;
 input_folder = ['competition_data_single_sample/step' num2str(step)];    % function input
 output_folder = ['competition_data_single_output/step' num2str(step)];    % function input
 
@@ -14,23 +14,30 @@ use_egrss = 1;   % Use egrss package for r_update? If 0 only works on small-scal
 use_gpu = 1;  %Use gpu for faster computations?
 
 % Initial guesses on radius
-%r0 = [0,8,16,28,40,50,57,63,68,74,79,85,90,96,101,107,112,118,123,129];
-r0 = [0,8,16,28,40,38,57,63,68,74,79,85,90,96,101,107,112,118,123,129];
+r0 = [0,8,16,28,40,50,57,63,68,74,79,85,90,96,101,107,112,118,123,129];
 dr0 = [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3];
 mu_r0 = r0(step+1); %Initial radius
 delta_r0 = dr0(step+1);     %Initial variance
 
+
+% Lambda will need to be scaled if we use Sx>0. For Sx>0 the following was
+% found: lambda = 1 for step > 5, smaller lambda for smaller steps
+% (maybe 0.1, 0.01?) 
+
+% List of estimated radius using 10 iter
+%r0 =  [0,NaN,NaN,NaN,NaN,NaN,44.2,50.33,59.16,67.59,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN]; %Estimated from alg
+
 % Other Parameters
 lambda_deblur = 0.01;    %Regularization parameter for final deblur
-lambda_restimate = 0.001;%Regularization parameter for r update
+lambda_restimate = 1;%Regularization parameter for r update
 %sigma_e = 0.034;  % Estimate of noise standard deviation
-patch_width  = 200; % Width of patch for radius estimation
-patch_height = 200; % Heightof patch for radius estimation
-n_iter = 100;      % Number of iterations for r_update
-Sr = 200;         % Number of samples for r_update
+patch_width  = 600; % Width of patch for radius estimation
+patch_height = 280; % Heightof patch for radius estimation
+n_iter = 10;      % Number of iterations for r_update
+Sr = 100;         % Number of samples for r_update
 Sx = 100;           % Number of samples for x_update
-alpha = 0.0;      % Relaxation parameter in varience est for r_update
-mid_shift = 15; %Shift center of image to better align letters?
+alpha = 0.1;      % Relaxation parameter in varience est for r_update
+mid_shift = 40; %Shift center of image to better align letters?
 
 
 % =============== Algorithm start ===============
@@ -71,10 +78,10 @@ for i = 1:nfiles
         
         x_old = x;
         % Filter x
-        x = medfilt2(x, [5,5],'zeros');                % median filter to remove noise from regularization
-        %x = imbilatfilt(x,2*sigma_e,4); % edge enhancement
-        %x(x>=0.75)=1;
-        %x(x<0.75)=0;
+        x = medfilt2(x, [5,5]);                % median filter to remove noise from regularization
+        x = imbilatfilt(x,2*sigma_e,4); % edge enhancement
+        %x(x>=0.1)=1;
+        %x(x<0.1)=0;
         %x = imsharpen(x);
         %x = imsharpen(x,'Radius',15,'Amount',1.5);
         figure(3); imshow(x); title('Current deblurred patch (filtered)'); drawnow;
@@ -119,6 +126,6 @@ if use_gpu == 1
     b = gpuArray(b);
 end
 % ==== Manual? ====
-x_manual = x_update(x, 35, 0.3, b, sigma_e, 0, lambda_deblur, 0);
-figure(6); imshow(x_manual); title("Deblur with manual estimate"); drawnow;
+x_manual = x_update(x, 59.12, 0.3, b, sigma_e, 0, lambda_deblur, 0);
+figure(8); imshow(x_manual); title("Deblur with manual estimate"); drawnow;
 figure(7); imshow(b); title('Blurred image'); drawnow;
