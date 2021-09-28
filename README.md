@@ -1,5 +1,8 @@
 # HDC2021_Team_DTU
-DTU Team. HDC 2021
+
+## About
+This repository contains the submission for the Helsinki Deblur Challenge 2021 (HDC2021) from Team 2 of Techinal University of Denmark (DTU), Kongens Lyngby, Denmark.
+The authors of this repository are Mads Emil Dahlgaard Hansen, Frederik Hagsholm Pedersen, Mads Thorstein Roar Henriksen, Raul Ortega Ochoa.
 
 ## Description of the algorithm.
 
@@ -15,8 +18,11 @@ Due to the high resolutions, in order to reduce the computational complexity, we
 which are several rows drawn from the degraded image. After the radius is estimated, in principle we can apply any
 variational methods to deblur the image. Here, we simply utilize the L2-TV method followed by image enhancement technique.
 
+## Installation 
+Clone the repository ```git clone https://github.com/raulorteg/HDC2021_Team_DTU ```
+
 ## Usage
-Run in terminal ```main(inputfolder, outputfolder, step)```
+Run in terminal ``` main(inputfolder, outputfolder, step)```
 
 where:
 * ```inputfolder```: string path to the folder with the blurred images (e.g 'blurred/step8_examples')
@@ -24,12 +30,16 @@ where:
 * ```step```: int variable of the step level of the competition
 
 ```main(...)``` lists all *.tif files in the <inputfolder> directory and calls
-```deblur(...)``` on each of this *.tif files, this function then does the deblurring
+``` deblur(...) ``` on each of this *.tif files, this function then does the deblurring
 and saves the resulting deblurred image with the same filename on the <outputfolder>
+
+## Examples
+
+Below, examples for different step difficulties can be seen together with the deblurred images outputted from the algorithm.
+
+![examples](files/steps_examples.png)
 
 ## References
 [1] Nicolai Andre Brogaard Riis, Yiqiu Dong and Per Christian Hansen, Computed tomography with view angle estimation using uncertainty quantification, Inverse Problems, Vol. 37, pp. 065007, 2021.
-
-## Structure
 
 
