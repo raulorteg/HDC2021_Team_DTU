@@ -101,7 +101,7 @@ while ~converged && k<maxiters
     y = x + (told-1)/t*(x-xold);
     
     if norm(x-xold)/norm(xold)<epsilon
-        disp(['The algorithm stopped at iteration ' num2str(k) ' because the relative change in objective is below the set tolerance'])
+%         disp(['The algorithm stopped at iteration ' num2str(k) ' because the relative change in objective is below the set tolerance'])
         converged = 1;
     end
     
@@ -119,7 +119,14 @@ end
 %Reshape to get image output
 x = reshape(x,m,n);
 
+<<<<<<< HEAD
 if k==maxiters
     disp('The algorithm stopped because the number of iterations reached the set maximum')
 end
 end
+=======
+% if k==maxiters
+%     disp('The algorithm stopped because the number of iterations reached the set maximum')
+% end
+end
+>>>>>>> 558346f (Remove display statements)
