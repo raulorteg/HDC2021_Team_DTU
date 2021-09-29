@@ -2,31 +2,30 @@ function deblur(inputFolder, outputFolder, filename, step)
     
     %%% Parameters for the Deblurring algorithm
     parameters = readtable('lookup_table.csv');
-    mu_r = parameters(step+1,:).radius; %mu_r = 40;
-    lambda_tv = parameters(step+1,:).lambda; % lambda_tv = 0.01;
-    delta_r = 2; % 10
+    mu_r = parameters(step+1,:).radius;
+    lambda_final = parameters(step+1,:).lambda_final; % 
+    lambda_tv = parameters(step+1,:).lambda_tv;
+    delta_r = parameters(step+1,:).delta_r;
     Sr = 100;
     y = 800;
-    K = 100;
+    K = 10;
     
     %%% Prepare the algorithm: Rescale the image and initialize x, b
     im = im2double(imread(join([inputFolder, '/', filename])));
     
-    if step == 0 || step == 1
+    if step == 0
         savePNG(im, outputFolder, filename);
         return
     end
     
-    %sigma_e = 1.6073e+03;
-    noise = im(100:200, 100:200);
-    sigma_e = std(noise(:));
+    sigma_e = 0.0241;
     
     %%% boolean flag to chose if use cholesky, and verbosity
     use_chol = 1;
-    verbose = 1;
-    if use_chol == 0
-        lambda_tv = lambda_tv*sigma_e^2;
-    end
+    verbose = 0;
+%     if use_chol == 0
+%         lambda_tv = lambda_tv*sigma_e^2;
+%     end
     
     % b = rescale(im_blurred_noise); % scale between 0 and 1.
     b = im(y,:);
@@ -54,7 +53,6 @@ function deblur(inputFolder, outputFolder, filename, step)
         % Apply a smoothing filter to reduce the noise before feeding
         % the processed image to the radious and noise estimation function
         x = medfilt1(x, 5, 'truncate');
-        %x = medfilt1(x, 5, 'truncate');
         % x = imbilatfilt(x,2*sigma_e,4);
         
         %%% Update r:
@@ -74,8 +72,8 @@ function deblur(inputFolder, outputFolder, filename, step)
     end
     
     x0 = zeros(size(im));
-    lambda_final = 0.01;
     final = FISTA_TVsmooth(mu_r, im, lambda_final, x0);
+%     final = adpmedian(final);
     
     % Save image
     savePNG(final, outputFolder, filename);
