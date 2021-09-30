@@ -73,7 +73,7 @@ function deblur(inputFolder, outputFolder, filename, step)
     
     x0 = zeros(size(im));
     final = FISTA_TVsmooth(mu_r, im, lambda_final, x0);
-%     final = adpmedian(final);
+    final = imsharpen(final);
     
     % Save image
     savePNG(final, outputFolder, filename);
