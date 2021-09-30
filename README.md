@@ -37,7 +37,7 @@ and saves the resulting deblurred image with the same filename on the <outputfol
 
 Below, examples for different step difficulties can be seen together with the deblurred images outputted from the algorithm.
 
-![examples](files/steps_examples.png)
+![examples](assets/steps_examples.png)
 
 ## References
 [1] Nicolai Andre Brogaard Riis, Yiqiu Dong and Per Christian Hansen, Computed tomography with view angle estimation using uncertainty quantification, Inverse Problems, Vol. 37, pp. 065007, 2021.
