@@ -2,7 +2,7 @@
 
 ## About
 This repository contains the submission for the Helsinki Deblur Challenge 2021 (HDC2021) from Team 2 of Techinal University of Denmark (DTU), Kongens Lyngby, Denmark.
-The authors of this repository are Mads Emil Dahlgaard Hansen, Frederik Hagsholm Pedersen, Mads Thorstein Roar Henriksen, Raul Ortega Ochoa.
+The authors of this repository are Frederik Hagsholm Pedersen, Mads Emil Dahlgaard, Mads Thorstein Roar Henriksen and Raul Ortega Ochoa.
 
 ## Description of the algorithm.
 
@@ -22,7 +22,7 @@ variational methods to deblur the image. Here, we simply utilize the L2-TV metho
 Clone the repository ```git clone https://github.com/raulorteg/HDC2021_Team_DTU ```
 
 ## Usage
-Run in terminal ``` main(inputfolder, outputfolder, step)```
+Run in Matlab ``` main(inputfolder, outputfolder, step)```
 
 where:
 * ```inputfolder```: string path to the folder with the blurred images (e.g 'blurred/step8_examples')
