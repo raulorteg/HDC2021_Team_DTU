@@ -19,40 +19,43 @@ function [x_new,f_vec] = x_update(x, mu_r, delta_r, b, sigma_e, Sr, lambda, usec
 %Initialize
 [n, m] = size(x);
 N = n * m;
-eta_samples = zeros(N, Sr);
 
-%Precompute forward operation once for efficiency
-A_mu_r_x = convb(x, mu_r);
-    
-for i = 1:Sr
-    %Sample radius
-    ri = normrnd(mu_r, delta_r);
-    while ri <= 0
-        ri = normrnd(mu_r, delta_r);
-    end
-    
-    %Compute model error sample
-    eta_i = convb(x, ri) - A_mu_r_x;
-    eta_samples(:,i) = eta_i(:);
+if usechol == 1 && Sr == 0
+    error('Number of samples cannot be zero if we want to include uncertainty');
 end
 
-%Compute model error mean
-mu_eta = mean(eta_samples, 2);
+if usechol == 1 && Sr ~= 0
     
-%NAIVE IMPLEMENTATION OF CHOLESKY FACTORIZATION
-%C_eta = cov(eta_samples');
-%C_total = C_eta + sigma_e^2 * eye(N);
-%C_inv = C_total\eye(N);
-%L = chol(C_inv);
-%b_tilde = L * (b(:) - mu_eta);
-%b_tilde = reshape(b_tilde, size(b));
-%x_new = tv_weighted_deblurring_chol(b_tilde,L,mu_r,lambda);   
-    
-%Update x
-%x_new = tv_weighted_deblurring_chol_generator(b_tilde,Yt,Zt,c,mu_r,lambda);
-%x_new = tv_weighted_deblurring_chol(b_tilde, L, mu_r, lambda);
+    eta_samples = zeros(N, Sr);
 
-if usechol == 1
+    %Precompute forward operation once for efficiency
+    A_mu_r_x = convb(x, mu_r);
+
+    for i = 1:Sr
+        %Sample radius
+        ri = normrnd(mu_r, delta_r);
+        while ri <= 0
+            ri = normrnd(mu_r, delta_r);
+        end
+
+        %Compute model error sample
+        eta_i = convb(x, ri) - A_mu_r_x;
+        eta_samples(:,i) = eta_i(:);
+    end
+
+    %Compute model error mean
+    mu_eta = mean(eta_samples, 2);
+
+    %NAIVE IMPLEMENTATION OF CHOLESKY FACTORIZATION, computing the term in the minimzation problem on slide 8 of presentation
+    %C_eta = cov(eta_samples');
+    %C_total = C_eta + sigma_e^2 * eye(N);
+    %C_inv = C_total\eye(N);
+    %L = chol(C_inv);
+    %b_tilde = L * (b(:) - mu_eta);
+    %b_tilde = reshape(b_tilde, size(b));
+    %x_new = tv_weighted_deblurring_chol(b_tilde,L,mu_r,lambda);   
+
+
     %Generator representation of inverse cholesky factorization
     U = (eta_samples - mu_eta)/sqrt(Sr-1);
     Ut = U';
